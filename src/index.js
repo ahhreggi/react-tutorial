@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+// Return a description of what should be rendered within a single square
 function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
@@ -30,7 +31,7 @@ class Board extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    // Determine whose turn it is
+    // Otherwise, determine whose turn it is
     squares[i] = this.state.xIsNext ? "X" : "O";
     // Set the state of the board to contain the contains of squares
     // Every time this is called, xIsNext is flipped to toggle between X and O
