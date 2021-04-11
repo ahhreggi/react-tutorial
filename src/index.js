@@ -10,43 +10,55 @@ function Square(props) {
   );
 }
 
+// A board which contains 9 squares
 class Board extends React.Component {
   constructor(props) {
     super(props);
+    // Initialize the board, represented by an array with 9 null values
+    // By default, X is set to go first
     this.state = {
       squares: Array(9).fill(null),
       xIsNext: true,
     }
   }
 
+  // Button click handler
   handleClick(i) {
+    // Create a copy of the squares to prevent mutation
     const squares = this.state.squares.slice();
+    // If there is a winner or a square already contains X/O, do nothing
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
+    // Determine whose turn it is
     squares[i] = this.state.xIsNext ? "X" : "O";
+    // Set the state of the board to contain the contains of squares
+    // Every time this is called, xIsNext is flipped to toggle between X and O
     this.setState({
       squares: squares,
       xIsNext: !this.state.xIsNext,
     })
   }
 
+  // Render a single square
   renderSquare(i) {
     return (
       <Square
-        value={this.state.squares[i]}
-        onClick={() => this.handleClick(i)}
+        value={this.state.squares[i]} // the value of the square according to the array in squares
+        onClick={() => this.handleClick(i)} // on click, use the board's handleClick method
       />
     );
   }
 
   render() {
+    // Every time the board is rendered, check for a winner
     const winner = calculateWinner(this.state.squares);
+    // Display the winner or the next player's turn
     let status;
     if (winner) {
       status = "Winner: " + winner;
     } else {
-      const status = 'Next player: ' + (this.state.xIsNext ? "X" : "O");
+      status = 'Next player: ' + (this.state.xIsNext ? "X" : "O");
     }
 
     return (
