@@ -13,58 +13,19 @@ function Square(props) {
 
 // A board which contains 9 squares
 class Board extends React.Component {
-  constructor(props) {
-    super(props);
-    // Initialize the board, represented by an array with 9 null values
-    // By default, X is set to go first
-    this.state = {
-      squares: Array(9).fill(null),
-      xIsNext: true,
-    }
-  }
-
-  // Button click handler
-  handleClick(i) {
-    // Create a copy of the squares to prevent mutation
-    const squares = this.state.squares.slice();
-    // If there is a winner or a square already contains X/O, do nothing
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    // Otherwise, determine whose turn it is
-    squares[i] = this.state.xIsNext ? "X" : "O";
-    // Set the state of the board to contain the contains of squares
-    // Every time this is called, xIsNext is flipped to toggle between X and O
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext,
-    })
-  }
-
   // Render a single square
   renderSquare(i) {
     return (
       <Square
-        value={this.state.squares[i]} // the value of the square according to the array in squares
-        onClick={() => this.handleClick(i)} // on click, use the board's handleClick method
+        value={this.props.squares[i]} // the value of the square according to the given props' squares
+        onClick={() => this.props.onClick(i)} // on click, use the given props' click handler
       />
     );
   }
 
   render() {
-    // Every time the board is rendered, check for a winner
-    const winner = calculateWinner(this.state.squares);
-    // Display the winner or the next player's turn
-    let status;
-    if (winner) {
-      status = "Winner: " + winner;
-    } else {
-      status = 'Next player: ' + (this.state.xIsNext ? "X" : "O");
-    }
-
     return (
       <div>
-        <div className="status">{status}</div>
         <div className="board-row">
           {this.renderSquare(0)}
           {this.renderSquare(1)}
@@ -86,14 +47,62 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+  // Initialize a game to contain a board represented by an array with 9 null elements
+  // History contains an array of all previous versions of the board
+  // Set X to be the player to go first
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: [{
+        squares: Array(9).fill(null),
+      }],
+      xIsNext: true,
+    };
+  }
+
+  // Click handler
+  handleClick(i) {
+    // The board to be rendered is the last one in the history array
+    const history = this.state.history;
+    const current = history[history.length - 1];
+    const squares = current.squares.slice();
+    // If there is a winner or the square that was clicked already contained X/O, do nothing
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    // Otherwise, determine the next player
+    squares[i] = this.state.xIsNext ? "X" : "O";
+    // Add the new array of squares to the game's history array
+    // Flip the value of xIsNext to change to the next player
+    this.setState({
+      history: history.concat([{
+        squares: squares,
+      }]),
+      xIsNext: !this.state.xIsNext,
+    })
+  }
   render() {
+    const history = this.state.history;
+    const current = history[history.length - 1];
+    const winner = calculateWinner(current.squares);
+
+    let status;
+    if (winner) {
+      status = "Winner: " + winner;
+    } else {
+      status = "Next player: " + (this.state.xIsNext ? "X" : "O");
+    }
+
     return (
       <div className="game">
         <div className="game-board">
-          <Board />
+          <Board
+            squares={current.squares}
+            onClick={(i) => this.handleClick(i)}
+          />
         </div>
         <div className="game-info">
-          <div>{/* status */}</div>
+          <div>{status}</div>
           <ol>{/* TODO */}</ol>
         </div>
       </div>
